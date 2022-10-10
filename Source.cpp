@@ -138,7 +138,49 @@ int callIntFunc(string proc, int param)
 
 void main()
 {
-  CallProcedure("printsomething");
-  cout << callIntFunc("PrintMe", "House") << endl;
-  cout << callIntFunc("SquareValue", 2);
+
+  int userChoice = 0;     // to srore user choice
+  while (userChoice != 4) // continue until user enters 4- exit
+  {
+    try // handle exceptions, if user enters invalid data
+    {
+
+      cout << "======================================================== \nMENU\n"; // show menu to the user
+      cout << "1. Check number of times each individual item appears\n";
+      cout << "2. Determine the frequency of a specific item\n";
+      cout << "3. Graphically display a data file as a text-based histogram\n";
+      cout << "4. Quit\n";
+      cout << "========================================================\n";
+      cout << "Enter your choice : \n";
+
+      cin >> userChoice; // read user choice
+
+      if (userChoice == 1) // if user input is 1
+      {
+        cout << "Frequency of items is : \n";
+        cout << callIntFunc("getFreqAllItems", "") << "\n"; // call get frequency of each item function
+      }
+      else if (userChoice == 2) // if user enters 2
+      {
+        cout << "Enter an item name, for which you want the frequency : \n"; // call get frequency of single item
+        string item;
+        cin >> item;
+        cout << callIntFunc("getFreqSingleItem", item) << "\n";
+      }
+      else if (userChoice == 3) // if user enters 3
+      {
+        cout << "The histogram format of the data is: \n";
+        cout << callIntFunc("showHistogram", "") << "\n"; // call show histogram function
+      }
+      else
+      {
+        break;
+      }
+    }
+    catch (...)
+    {
+      cout << "Error occured please check the entered values"
+           << "\n";
+    }
+  }
 }
