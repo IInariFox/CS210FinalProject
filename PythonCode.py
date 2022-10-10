@@ -3,18 +3,9 @@ import string
 import os.path
 from os import path
 
-
-#Description:
-#To call this function, pass the function name into the CallProcedure function.
-#Example:
-#callProcedure("CountAll");
-#Output:
-#Returns a list of all unique items in CS210, and prints all of their occurrances.
-#Return:
-#       None
 def CountAll():
     #Open the file in read mode
-    text = open("CS210_Project_Three_Input_File.txt", "r")
+    text = open("input.txt", "r")
 
     #Create an empty dictionary to store "found" words
     dictionary = dict()
@@ -42,23 +33,13 @@ def CountAll():
     #Close the opened file.
     text.close()
 
-
-
-#Description:
-#       To call this function, pass this function into the CallIntFunc function along with the desired search term.
-#Example:
-#       callIntFunc("CountInstances", searchTerm);
-#Output:
-#       Returns the number of occurrances of the desired search term.
-#Return:
-#       int wordCount
 def CountInstances(searchTerm):
 
     #Convert user-inputted search term to lowercase for better matching
     searchTerm = searchTerm.lower()
 
     #Open the file in read mode
-    text = open("CS210_Project_Three_Input_File.txt", "r")
+    text = open("input.txt", "r")
 
     #Create variable to track how many times the search term has been "found"
     wordCount = 0
@@ -81,21 +62,9 @@ def CountInstances(searchTerm):
     #Close opened file
     text.close()
 
-
-
-#Count the number of appearances for each item, then write to frequency.dat
-
-#Description:
-#       To call this function, pass this function into the CallProcedure function.
-#Example:
-#       callProcedure("CollectData");
-#Output:
-#       Returns a a document (frequency.dat) with each unique word and the number of times that word occurs..
-#Return:
-#       frequency.dat
 def CollectData():
     #Open the input file in read mode
-    text = open("CS210_Project_Three_Input_File.txt", "r")
+    text = open("input.txt", "r")
 
     #Create and/or write the file frequency.dat
     frequency = open("frequency.dat", "w")

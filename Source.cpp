@@ -1,21 +1,15 @@
 #include <Python.h>
 #include <iostream>
+#include <iomanip>
+#define NOMINMAX
 #include <Windows.h>
+#undef NOMINMAX
 #include <cmath>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
-/*
-Description:
-  To call this function, simply pass the function name in Python that you wish to call.
-Example:
-  callProcedure("printsomething");
-Output:
-  Python will print on the screen: Hello from python!
-Return:
-  None
-*/
 void CallProcedure(string pName)
 {
   char *procname = new char[pName.length() + 1];
@@ -31,17 +25,6 @@ void CallProcedure(string pName)
   delete[] procname;
 }
 
-/*
-Description:
-  To call this function, pass the name of the Python functino you wish to call and the string parameter you want to send
-Example:
-  int x = callIntFunc("PrintMe","Test");
-Output:
-  Python will print on the screen:
-    You sent me: Test
-Return:
-  100 is returned to the C++
-*/
 int callIntFunc(string proc, string param)
 {
   char *procname = new char[proc.length() + 1];
@@ -87,14 +70,6 @@ int callIntFunc(string proc, string param)
   return _PyLong_AsInt(presult);
 }
 
-/*
-Description:
-  To call this function, pass the name of the Python functino you wish to call and the string parameter you want to send
-Example:
-  int x = callIntFunc("doublevalue",5);
-Return:
-  25 is returned to the C++
-*/
 int callIntFunc(string proc, int param)
 {
   char *procname = new char[proc.length() + 1];
@@ -136,51 +111,129 @@ int callIntFunc(string proc, int param)
   return _PyLong_AsInt(presult);
 }
 
-void main()
+void DrawMenu()
 {
 
-  int userChoice = 0;     // to srore user choice
-  while (userChoice != 4) // continue until user enters 4- exit
+  // Initialize method-specific variables
+  int menuLoop = 0;                 // Track the number of menu loops
+  int wordCount = 0;                // Track the number of times a specific searched word was found
+  int itemQuantity = 0;             // Variable to contain an item quantity from frequency.dat
+  string searchTerm;                // Collect user input for a search term
+  string itemName;                  // Variable to contain an item name from frequency.dat
+  string greenColor = "\033[32;1m"; // Set font color green for the histogram asterisks
+  string defaultColor = "\033[0m";  // Set default font color for the console
+  ifstream fileInput;               // Open ifstream for file
+
+  while (menuLoop != 4)
   {
-    try // handle exceptions, if user enters invalid data
+
+    // Prompt and collect user input
+    std::cout << "[1] Calculate the number of times each item appears" << std::endl;
+    std::cout << "[2] Calculate the frequency of a specific item" << std::endl;
+    std::cout << "[3] Create a histogram based on the number of appearances of each item" << std::endl;
+    std::cout << "[4] Quit" << std::endl;
+
+    std::cin >> menuLoop;
+
+    // Check if user input is valid. If not, prompt correct input.
+    while (std::cin.fail())
     {
-
-      cout << "======================================================== \nMENU\n"; // show menu to the user
-      cout << "1. Check number of times each individual item appears\n";
-      cout << "2. Determine the frequency of a specific item\n";
-      cout << "3. Graphically display a data file as a text-based histogram\n";
-      cout << "4. Quit\n";
-      cout << "========================================================\n";
-      cout << "Enter your choice : \n";
-
-      cin >> userChoice; // read user choice
-
-      if (userChoice == 1) // if user input is 1
-      {
-        cout << "Frequency of items is : \n";
-        cout << callIntFunc("getFreqAllItems", "") << "\n"; // call get frequency of each item function
-      }
-      else if (userChoice == 2) // if user enters 2
-      {
-        cout << "Enter an item name, for which you want the frequency : \n"; // call get frequency of single item
-        string item;
-        cin >> item;
-        cout << callIntFunc("getFreqSingleItem", item) << "\n";
-      }
-      else if (userChoice == 3) // if user enters 3
-      {
-        cout << "The histogram format of the data is: \n";
-        cout << callIntFunc("showHistogram", "") << "\n"; // call show histogram function
-      }
-      else
-      {
-        break;
-      }
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cout << "Please input a valid selection: ";
+      std::cin >> menuLoop;
     }
-    catch (...)
+
+    // Switch statement: Execute the proper command for user input
+    switch (menuLoop)
     {
-      cout << "Error occured please check the entered values"
-           << "\n";
+
+    //
+    // Case 1: Calculate the number of times each item appears, then print a list
+    //
+    case 1:
+      system("CLS");             // Clear the screen to tidy things up
+      CallProcedure("CountAll"); // Call the Python function "CountAll"
+      std::cout << std::endl;    // Add a bit of space in between the printed list and menu
+      break;
+
+    //
+    // Case 2: Calculate the number of times a specific item appears, then print the result.
+    //
+    case 2:
+      // Clear the screen, then collect user input for search
+      system("CLS");
+      std::cout << "What item would you like to search for?" << std::endl;
+      std::cin >> searchTerm;
+
+      // Call Python function with the search term, then return an integer word count value.
+      wordCount = callIntFunc("CountInstances", searchTerm);
+
+      // Print statement with returned word count.
+      std::cout << std::endl
+        << searchTerm << " : " << wordCount << std::endl << std::endl;
+
+      break;
+
+    //
+    // Case 3: Print a histogram based on how many times each item appears. Like case 1, but with stars.
+    //
+    case 3:
+      system("CLS");                // Clear the screen to tidy things up
+      CallProcedure("CollectData"); // Call the Python function "CollectData"
+
+      fileInput.open("frequency.dat"); // Open frequency.dat
+
+      fileInput >> itemName;     // Collect first item on list
+      fileInput >> itemQuantity; // Collect first quantity on list
+
+      // For each line in the file, print a histogram. After every line has been parsed, break.
+      while (!fileInput.fail())
+      {
+        // Set text color to the default white
+        std::cout << defaultColor;
+
+        // Print the item name, then prepare for the histogram
+        std::cout << std::setw(14) << std::left << itemName << std::setw(6);
+
+        std::cout << greenColor;
+
+        // Print itemQuantity number of asterisks
+        for (int i = 0; i < itemQuantity; i++)
+        {
+
+          // Print green asterisks in line.
+          std::cout << std::right << "*";
+        }
+        // Prepare for the next line, then set the next item's name and quantity.
+        std::cout << std::endl;
+        fileInput >> itemName;
+        fileInput >> itemQuantity;
+      }
+
+      // Close frequency.dat, reset font color, then break
+      fileInput.close();
+      std::cout << defaultColor << endl;
+      break;
+
+    //
+    // Case 4: Quit the program.
+    //
+    case 4:
+      return;
+
+    // Default case: Invalid input
+    default:
+      std::cout << "Please input a valid selection.";
+      std::cout << std::endl;
+      break;
     }
   }
+}
+
+// Main method. Calls the DrawMenu method to collect user input.
+void main()
+{
+  // Draw the user menu.
+  DrawMenu();
 }
